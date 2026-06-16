@@ -45,10 +45,21 @@ function handle_interruption() {
 	fi
 }
 
+function python3_check() {
+	echo "Verifying if python3 is installed on this system..."
+	command="$(python3 --version)"
+	if [[ $command =~ "Python 3." ]]
+	then
+		echo "Verification done! python3 is installed on this system"
+	else
+		echo "Verification done! Python is not installed on this system"
+	fi
+}
+
 function setup() {
 
 	while true; do
-		trap 'echo "Successfully cancelled. No changes were made"' INT
+		trap 'echo "Successfully cancelled. No changes were made"; exit' INT
 		read -p "Enter tracker version (e.g: v1): " version
 		directory_name="attendance_tracker_$version"
 		trap "handle_interruption $directory_name" INT
@@ -65,10 +76,12 @@ function setup() {
 				if [ "$choice" == "y" ]
 				then
 					edit_config $directory_name
+					python3_check
 					break
 				elif [ "$choice" == "n" ]
 				then
 					echo "Successfully setup the project!"
+					python3_check
 					break
 				else
 				echo "Invalid choice choose bettween [y/n]"
