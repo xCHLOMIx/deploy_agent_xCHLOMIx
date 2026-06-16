@@ -34,39 +34,47 @@ function edit_config() {
 }
 
 function handle_interruption() {
-	echo "Nice"
-	exit
+	if [ -d $1 ]
+	then
+		echo "Archiving $1..."
+		tar -cvf "$1_archive.tar" "./$1"
+		echo "Cleaning workspace..."
+		rm -r "./$1"
+		echo "Setup successfully cancelled. Archived $1 and cleaned workspace"
+		exit
+	fi
 }
 
 function setup() {
-	trap handle_interruption INT
 
 	while true; do
+		trap 'echo "Successfully cancelled. No changes were made"' INT
 		read -p "Enter tracker version (e.g: v1): " version
 		directory_name="attendance_tracker_$version"
-
+		trap "handle_interruption $directory_name" INT
+		
 		if [ -d "$directory_name" ]
 		then
 			echo "Try a different version. $directory_name already exists"
 		else
-			setup_directory $directory_name
-			break
-		fi
-	done
+			setup_directory $directory_name	
 	
-	while true; do
-		read -p "Do you want to setup your own warning and failure values? [y/n]: " choice
-
-		if [ "$choice" == "y" ]
-		then
-			edit_config $directory_name
+			while true; do
+				read -p "Do you want to setup your own warning and failure values? [y/n]: " choice
+	
+				if [ "$choice" == "y" ]
+				then
+					edit_config $directory_name
+					break
+				elif [ "$choice" == "n" ]
+				then
+					echo "Successfully setup the project!"
+					break
+				else
+				echo "Invalid choice choose bettween [y/n]"
+				fi
+			done
 			break
-		elif [ "$choice" == "n" ]
-		then
-			echo "Successfully setup the project!"
-			break
-		else
-			echo "Invalid choice choose bettween [y/n]"
 		fi
 	done
 }
