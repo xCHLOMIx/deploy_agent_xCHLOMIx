@@ -52,7 +52,7 @@ function python3_check() {
 	then
 		echo "Verification done! python3 is installed on this system"
 	else
-		echo "Verification done! Python is not installed on this system"
+		echo "Verification done! python3 is not installed on this system"
 	fi
 }
 
